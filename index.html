@@ -49,9 +49,11 @@
           return tree$(currentRepo, treeSha);
         })
         .subscribe(function(rows) {
-          var content = rows.map(function(row) {
-            return '<a href="http://' + info[0] + '.github.io/' + info[1] + '/' + row + '" class="list-group-item">' + row + '</a>';
-          });
+          var content = rows
+            .map(function(row) {
+              return '<a href="http://' + info[0] + '.github.io/' + info[1] + '/' + row + '" class="list-group-item">' + row + '</a>';
+            })
+            .join('');
           document.body.innerHTML = '<div class="container"><h1 class="page-header">Branches</h1><div class="list-group">' + content + '</div></div>';
         });
     })(Rx.Observable);
