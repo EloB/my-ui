@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://fb.me/react-0.14.7.js"></script>
+  <script src="https://fb.me/react-dom-0.14.7.js"></script>
+  <script src="https://unpkg.com/@reactivex/rxjs@5.0.3/dist/global/Rx.js"></script>
+</head>
+<body>
+  <script>
+    (function(Observable) {
+      var href = 'https://elob.github.io/my-ui/';
+      var info = href.match(/^https?:\/\/([^.]+)\.github\.io\/([^/]+)/).slice(1);
+      var currentRepo = info.join('/');
+      var accessToken = window.localStorage.getItem('accessToken');
+      if (!accessToken) {
+        accessToken = prompt('Github access token', '');
+        if (!accessToken) return;
+        localStorage.setItem('accessToken', accessToken);
+      }
+      function treeSha$(repo) {
+        return Observable
+          .ajax('https://api.github.com/repos/' + repo + '/branches/gh-pages?access_token=' + accessToken)
+          .map(function(ajax) {
+            return ajax.response.commit.commit.tree.sha;
+          });
+      }
+      function tree$(repo, treeSha) {
+        return Observable
+          .ajax('https://api.github.com/repos/' + repo + '/git/trees/' + treeSha + '?access_token=' + accessToken)
+          .map(function(ajax) {
+            return ajax.response.tree
+              .filter(function(leaf) {
+                return leaf.type === 'tree';
+              })
+              .map(function(leaf) {
+                return leaf.path;
+              });
+          })
+          .catch(function() {
+            return [[]];
+          });
+      }
+      treeSha$(currentRepo)
+        .concatMap(function(treeSha) {
+          return tree$(currentRepo, treeSha);
+        })
+        .subscribe(function(rows) {
+          var content = rows.map(function(row) {
+            return '<a href="http://' + info[0] + '.github.io/' + info[1] + '/' + row + '" class="list-group-item">' + row + '</a>';
+          });
+          document.body.innerHTML = '<div class="container"><h1 class="page-header">Branches</h1><div class="list-group">' + content + '</div></div>';
+        });
+    })(Rx.Observable);
+  </script>
+</body>
+</html>
