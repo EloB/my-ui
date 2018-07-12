@@ -16,21 +16,22 @@
       var info = href.match(/^https?:\/\/([^.]+)\.github\.io\/([^/]+)/).slice(1);
       var currentRepo = info.join('/');
       var accessToken = window.localStorage.getItem('accessToken');
+      var accessTokenUrl = '';
       if (!accessToken) {
         accessToken = prompt('Github access token', '');
-        if (!accessToken) return;
-        localStorage.setItem('accessToken', accessToken);
+        if (accessToken) localStorage.setItem('accessToken', accessToken);
       }
+      if (accessToken) accessTokenUrl = '?access_token=' + accessToken;
       function treeSha$(repo) {
         return Observable
-          .ajax('https://api.github.com/repos/' + repo + '/branches/gh-pages?access_token=' + accessToken)
+          .ajax('https://api.github.com/repos/' + repo + '/branches/gh-pages' + accessTokenUrl)
           .map(function(ajax) {
             return ajax.response.commit.commit.tree.sha;
           });
       }
       function tree$(repo, treeSha) {
         return Observable
-          .ajax('https://api.github.com/repos/' + repo + '/git/trees/' + treeSha + '?access_token=' + accessToken)
+          .ajax('https://api.github.com/repos/' + repo + '/git/trees/' + treeSha + accessTokenUrl)
           .map(function(ajax) {
             return ajax.response.tree
               .filter(function(leaf) {
