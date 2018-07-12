@@ -16,6 +16,7 @@
     "eslint-plugin-jsx-a11y": "^6.1.0",
     "eslint-plugin-react": "^7.10.0",
     "gh-pages": "^1.2.0",
+    "git-branch": "^2.0.1",
     "husky": "^0.14.3",
     "webpack": "^4.16.0"
   },
@@ -27,6 +28,7 @@
     "clean": "rimraf storybook-static",
     "build": "babel -s -d dist src && cpy package.json dist",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "prepush": "npm run clean && npm run build-storybook && node bin/deploy"
   }
 }

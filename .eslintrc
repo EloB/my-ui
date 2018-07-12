@@ -2,7 +2,7 @@
   "extends": "airbnb",
   "overrides": [
     {
-      "files": ["**/*.story.jsx"],
+      "files": ["**/*.story.jsx", "bin/deploy.js"],
       "rules": {
         "import/no-extraneous-dependencies": "off"
       }
